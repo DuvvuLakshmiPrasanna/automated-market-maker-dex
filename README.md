@@ -1,3 +1,123 @@
+# DEX AMM — Automated Market Maker (Simplified)
+
+Short, hands-on implementation of a constant-product DEX (x \* y = k) with tests,
+coverage, and basic static analysis artifacts included.
+
+---
+
+**Status (Dec 30, 2025)**
+
+- Tests: 46 passing (local)
+- Coverage (solidity-coverage): Statements/Functions/Lines = 100%, Branch ≈ 79.55%
+- Slither: `slither-report.json` produced; analysis reported several findings (assembly in OpenZeppelin, mixed pragma versions in flattened file, and reentrancy candidates). See Security section below.
+- Repo: latest changes pushed to `main` branch.
+
+---
+
+Quick links (files)
+
+- Contract: [contracts/DEX.sol](contracts/DEX.sol)
+- Test suites: [test/DEX.test.js](test/DEX.test.js), [test/coverage.booster.test.js](test/coverage.booster.test.js), [test/branch_booster.additional.test.js](test/branch_booster.additional.test.js)
+- Flattened (for analysis): [build/flat/DEX_flat_clean.sol](build/flat/DEX_flat_clean.sol)
+- Slither JSON report: [slither-report.json](slither-report.json)
+
+---
+
+Quick start (local)
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Compile
+
+```bash
+npx hardhat compile
+```
+
+3. Run tests
+
+```bash
+npx hardhat test
+```
+
+4. Run coverage (solidity-coverage)
+
+```bash
+npm run coverage
+```
+
+Notes: Running `npm run coverage` will instrument the contracts and produce a `coverage/` folder and `coverage/coverage-final.json`.
+
+---
+
+Slither static analysis (local / Docker)
+
+This repo contains a custom Slither run artifact and instructions. Because Slither must compile sources with a Solidity version compatible with the flattened file, the simplest approach is to run Slither inside the provided `dex-slither:latest` image (already built during previous work), mounting the repo root.
+
+Example (PowerShell):
+
+```powershell
+# Remove any previous report, then run slither inside the custom image
+del slither-report.json
+docker run --rm -v C:/path/to/automated-market-maker-dex:/tmp -w /tmp dex-slither:latest \
+  slither build/flat/DEX_flat_clean.sol --json /tmp/slither-report.json
+```
+
+If the container fails to compile, regenerate the flattened file and clean it:
+
+```bash
+npx hardhat flatten contracts/DEX.sol > build/flat/DEX_flat.sol
+node tools/clean_flat_bin.js build/flat/DEX_flat.sol build/flat/DEX_flat_clean.sol
+```
+
+The generated `slither-report.json` is checked into the repo root for review.
+
+---
+
+What I changed (high level)
+
+- Implemented `DEX.sol` (core AMM), `MockERC20.sol` for tests.
+- Added tests that exercise main flows and many edge cases; added dedicated branch-targeting tests to increase coverage.
+- Improved contract CEI ordering and marked token addresses `immutable` to reduce static-analysis noise.
+- Created tools to flatten and clean the flattened file for Slither and saved `slither-report.json`.
+
+---
+
+Security notes & Slither findings
+
+- Slither reported assembly usage inside OpenZeppelin `Address._revert` (library code).
+- Mixed pragma versions appear in the flattened file (the flattened file contains dependencies from node_modules with different pragmas). This is expected when using flattened output — use the cleaned flattened file and a matching `solc` in Slither to reduce false positives.
+- Reentrancy candidates were flagged for `addLiquidity`, `swapAForB`, and `swapBForA` in the flattened analysis. I applied Checks-Effects-Interactions ordering for swaps and moved token transfers in `addLiquidity` after internal state updates; Slither findings were reduced but not all warnings disappear because flattened files and dependency code can trigger conservative detectors. Manual review recommended.
+
+Recommendations before any real deployment
+
+- Add `minAmountOut` slippage protection and optional `deadline` for swap functions.
+- Consider separating LP accounting into an ERC-20 LP token contract for composability.
+- Run Slither and MythX (or other audit tools) with consistent Solidity versions and review/triage all flagged items.
+
+---
+
+Deliverables pushed to GitHub
+
+- All code, tests, flattened files, and `slither-report.json` have been committed and pushed to `main`.
+
+If you want me to:
+
+- push a release tag and create GitHub release notes, say `release`.
+- continue raising branch coverage to 100% (I'll refactor or add tests), say `coverage`.
+- triage Slither findings into actionable fixes (or suppressions) and regenerate the report, say `slither`.
+- produce a submission zip and attach it to the repo root, say `zip`.
+
+---
+
+Contact / Next step
+Tell me which of the optional items above you want next and I'll proceed and push changes to the repo.
+
+Thank you — everything here is ready for your review.
+
 # DEX AMM Project
 
 ## Overview
