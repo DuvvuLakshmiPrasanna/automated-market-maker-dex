@@ -650,8 +650,8 @@ pragma solidity ^0.8.19;
 contract DEX is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    address public tokenA;
-    address public tokenB;
+    address public immutable tokenA;
+    address public immutable tokenB;
     uint256 public reserveA;
     uint256 public reserveB;
     uint256 public totalLiquidity;
@@ -745,11 +745,13 @@ contract DEX is ReentrancyGuard {
     {
         require(amountAIn > 0, "Amount must be > 0");
 
-        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountAIn);
-
+        // compute output first and validate before pulling funds
         amountBOut = getAmountOut(amountAIn, reserveA, reserveB);
         require(amountBOut > 0 && amountBOut <= reserveB, "Insufficient output amount");
 
+        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountAIn);
+
+        // update reserves after tokens are transferred in
         reserveA += amountAIn;
         reserveB -= amountBOut;
 
@@ -768,10 +770,11 @@ contract DEX is ReentrancyGuard {
     {
         require(amountBIn > 0, "Amount must be > 0");
 
-        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBIn);
-
+        // compute output and validate before pulling funds
         amountAOut = getAmountOut(amountBIn, reserveB, reserveA);
         require(amountAOut > 0 && amountAOut <= reserveA, "Insufficient output amount");
+
+        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBIn);
 
         reserveB += amountBIn;
         reserveA -= amountAOut;
