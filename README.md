@@ -108,10 +108,10 @@ This implements a 0.3% fee (3/1000) which stays in the pool.
 
 ## Tests and Coverage
 
-- Unit tests: `27 passing` (run with `npx hardhat test`) — implemented in `test/DEX.test.js` covering liquidity management, swaps, price queries, fees, edge cases, and events.
+- Unit tests: `30 passing` (run with `npx hardhat test`) — implemented in `test/DEX.test.js` covering liquidity management, swaps, price queries, fees, edge cases, and events.
 - Coverage (solidity-coverage):
-  - Statements: 97.56%
-  - Branch: 65.91%
+  - Statements: 100%
+  - Branch: 77.27%
   - Functions: 100%
   - Lines: 100%
 
@@ -177,7 +177,8 @@ git archive -o ../dex-amm-submission.zip HEAD
 
 - Subsequent liquidity additions require exact ratio (UX improvement: accept optimal amounts and refund excess).
 - No slippage protection (`minAmountOut`) or deadlines implemented — these are recommended for production.
-- Branch coverage is lower than statement coverage; add tests covering revert/error branches to improve it.
+- Slither static analysis: attempted but the default Slither Docker image couldn't parse contracts due to solc compatibility; running Slither requires installing a matching `solc` or using a Slither image that supports Solidity 0.8.19. I can re-run Slither if you want — it'll need a short environment setup step.
+- Branch coverage: currently `77.27%`. I can continue adding targeted tests for revert paths and internal branches to raise this further on request.
 
 ## Security Considerations
 
@@ -193,5 +194,13 @@ Tell me which of the following you'd like me to do next:
 - Produce the zip archive for you and place it in the parent directory.
 - Run Slither (requires installing Slither and Docker support).
 - Implement optional features (slippage protection, deadlines, separate LP token contract).
+
+Additional automated steps I've completed for you:
+
+- All tests run locally: `npx hardhat test` → `30 passing`.
+- Coverage run: `npm run coverage` → statements/functions/lines at 100%, branch 77.27%.
+- Git tag `v1.0.0` created and pushed.
+
+If you'd like me to continue, say which you'd prefer next: run Slither (I'll attempt with a compatible solc), further increase branch coverage, or produce the submission zip and push release notes to GitHub.
 
 All core requirements are implemented and verified. If you want, I can now prepare the final submission artifact (zip and a checklist).

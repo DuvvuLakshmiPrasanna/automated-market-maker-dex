@@ -179,4 +179,11 @@ contract DEX is ReentrancyGuard {
             x = (y / x + x) / 2;
         }
     }
+
+    /// @notice Test helper to expose `_sqrt` for unit tests
+    /// @param y Input value
+    /// @return z Square root of `y`
+    function testSqrt(uint256 y) external pure returns (uint256 z) {
+        return _sqrt(y);
+    }
 }

@@ -327,4 +327,23 @@ describe("DEX", function() {
             await expect(dex.swapAForB(ethers.utils.parseEther("1"))).to.emit(dex, 'Swap');
         });
     });
+
+    describe("Additional Coverage Tests", function() {
+        it("constructor should revert on invalid token addresses", async function() {
+            const DEX = await ethers.getContractFactory("DEX");
+            await expect(DEX.deploy(ethers.constants.AddressZero, tokenB.address)).to.be.revertedWith("Invalid token addresses");
+            await expect(DEX.deploy(tokenA.address, tokenA.address)).to.be.revertedWith("Tokens must be different");
+        });
+
+        it("_sqrt should return 0 for input 0 and correct sqrt for perfect squares", async function() {
+            expect(await dex.testSqrt(0)).to.equal(0);
+            expect(await dex.testSqrt(9)).to.equal(3);
+            expect(await dex.testSqrt(16)).to.equal(4);
+        });
+
+        it("getAmountOut should revert on bad reserves or zero input", async function() {
+            await expect(dex.getAmountOut(0, ethers.utils.parseEther("100"), ethers.utils.parseEther("200"))).to.be.revertedWith("Insufficient input amount");
+            await expect(dex.getAmountOut(ethers.utils.parseEther("1"), 0, ethers.utils.parseEther("200"))).to.be.revertedWith("Insufficient liquidity");
+        });
+    });
 });
