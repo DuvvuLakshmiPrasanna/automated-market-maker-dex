@@ -2,6 +2,10 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("DEX", function() {
+    // Increase timeout for slow coverage runs
+    before(function() {
+        this.timeout(120000);
+    });
     let dex, tokenA, tokenB;
     let owner, addr1, addr2;
 
