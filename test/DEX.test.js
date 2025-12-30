@@ -124,7 +124,7 @@ describe("DEX", function() {
         });
 
         it("should revert on zero liquidity addition", async function() {
-            await expect(dex.addLiquidity(0, 0)).to.be.revertedWith("Amounts must be > 0");
+            await expect(dex.addLiquidity(0, 0)).to.be.revertedWith("AmountA must be > 0");
         });
 
         it("should revert when removing more liquidity than owned", async function() {

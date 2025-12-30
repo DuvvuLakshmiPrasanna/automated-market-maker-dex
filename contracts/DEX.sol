@@ -40,10 +40,8 @@ contract DEX is ReentrancyGuard {
         nonReentrant
         returns (uint256 liquidityMinted)
     {
-        require(amountA > 0 && amountB > 0, "Amounts must be > 0");
-
-        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountA);
-        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountB);
+        require(amountA > 0, "AmountA must be > 0");
+        require(amountB > 0, "AmountB must be > 0");
 
         if (totalLiquidity == 0) {
             liquidityMinted = _sqrt(amountA * amountB);
@@ -59,10 +57,15 @@ contract DEX is ReentrancyGuard {
             liquidity[msg.sender] += liquidityMinted;
         }
 
+        // Effects: update reserves and emit before external calls (Checks-Effects-Interactions)
         reserveA += amountA;
         reserveB += amountB;
 
         emit LiquidityAdded(msg.sender, amountA, amountB, liquidityMinted);
+
+        // Interactions: transfer tokens after internal state updated
+        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountA);
+        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountB);
     }
 
     /// @notice Remove liquidity from the pool

@@ -16,16 +16,16 @@ describe('Branch Booster - targeted operand coverage', function() {
     await tokenB.approve(dex.address, ethers.constants.MaxUint256);
   });
 
-  it('addLiquidity: amountA > 0 but amountB == 0 (second operand false)', async function() {
+    it('addLiquidity: amountA > 0 but amountB == 0 (second operand false)', async function() {
     await tokenA.mint(owner.address, ethers.utils.parseEther('10'));
     await tokenA.approve(dex.address, ethers.constants.MaxUint256);
-    await expect(dex.addLiquidity(ethers.utils.parseEther('1'), 0)).to.be.revertedWith('Amounts must be > 0');
+    await expect(dex.addLiquidity(ethers.utils.parseEther('1'), 0)).to.be.revertedWith('AmountB must be > 0');
   });
 
-  it('addLiquidity: amountA == 0 but amountB > 0 (first operand false)', async function() {
+    it('addLiquidity: amountA == 0 but amountB > 0 (first operand false)', async function() {
     await tokenB.mint(owner.address, ethers.utils.parseEther('10'));
     await tokenB.approve(dex.address, ethers.constants.MaxUint256);
-    await expect(dex.addLiquidity(0, ethers.utils.parseEther('1'))).to.be.revertedWith('Amounts must be > 0');
+    await expect(dex.addLiquidity(0, ethers.utils.parseEther('1'))).to.be.revertedWith('AmountA must be > 0');
   });
 
   it('getAmountOut: reserveIn == 0 but reserveOut > 0 (second operand false in reserves check)', async function() {
