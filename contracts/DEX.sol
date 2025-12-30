@@ -110,12 +110,12 @@ contract DEX is ReentrancyGuard {
         amountBOut = getAmountOut(amountAIn, reserveA, reserveB);
         require(amountBOut > 0 && amountBOut <= reserveB, "Insufficient output amount");
 
-        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountAIn);
-
-        // update reserves after tokens are transferred in
+        // Effects: update reserves first to follow Checks-Effects-Interactions
         reserveA += amountAIn;
         reserveB -= amountBOut;
 
+        // Interactions: pull from sender and push out tokens
+        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountAIn);
         IERC20(tokenB).safeTransfer(msg.sender, amountBOut);
 
         emit Swap(msg.sender, tokenA, tokenB, amountAIn, amountBOut);
@@ -135,11 +135,12 @@ contract DEX is ReentrancyGuard {
         amountAOut = getAmountOut(amountBIn, reserveB, reserveA);
         require(amountAOut > 0 && amountAOut <= reserveA, "Insufficient output amount");
 
-        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBIn);
-
+        // Effects: update reserves first to follow Checks-Effects-Interactions
         reserveB += amountBIn;
         reserveA -= amountAOut;
 
+        // Interactions: pull from sender and push out tokens
+        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBIn);
         IERC20(tokenA).safeTransfer(msg.sender, amountAOut);
 
         emit Swap(msg.sender, tokenB, tokenA, amountBIn, amountAOut);
